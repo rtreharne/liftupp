@@ -7,11 +7,14 @@ import sys
 def create_df(fname):
     return  pd.read_csv(fname)
 
-def create_set(label, data):
+def create_set(label, data, list=False):
     temp_list = []
 
     for i, item in data.iterrows():
         temp_list.append(item[label])
+
+    if list==True:
+        return(temp_list)
 
     return set(temp_list)
 
@@ -47,14 +50,15 @@ def get_student_scores(students, section_dict, df):
                     continue
             section_score = np.nanmean(question_score)
 
-            #output_dict[section] = '{0:.1f} ({1})'.format(section_score, np.max(question_list))
-            output_dict[section] = '{0:.1f}'.format(section_score, np.max(question_list))
-
-            # print(student, section, section_score, np.max(question_list), '{0:.1f} ({1})'.format(section_score, np.max(question_list)))
+            output_dict[section] = '{0:.1f} ({1})'.format(section_score, np.max(question_list))
+            #output_dict[section] = '{0:.1f}'.format(section_score, np.max(question_list))
 
             student_dict[student] = output_dict
 
-    return student_dict
+
+            #cols.insert(0, cols.pop(cols.index('Student #')))
+
+    return pd.DataFrame.from_dict(student_dict, orient='index')
 
 def get_csv_files(folder):
     path = folder
@@ -79,7 +83,7 @@ if __name__ == "__main__":
     df = concat_csv(sys.argv[1])
     students = create_set("Student #", df)
     section_dict = create_section_dict(create_set("Section", df), df)
-    scores = get_student_scores(students, section_dict, df)
-    pd.DataFrame.from_dict(scores, orient='index').to_excel("gc_upload_" + str('{0:.0f}'.format(time.time())) + ".xlsx")
+    scores = get_student_scores(students, section_dict, df) #this is a df now
+    #pd.DataFrame.from_dict(scores, orient='index').to_excel("gc_upload_" + str('{0:.0f}'.format(time.time())) + ".xlsx")
 
 
